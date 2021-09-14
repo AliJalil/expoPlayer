@@ -25,23 +25,18 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
-
     private fun initializePlayer() {
         player = SimpleExoPlayer.Builder(this).build()
         _binding.exoPlayerVideo.player = player
-        buildMediaSource().let {
-            player?.setMediaSource(it)
+
+        val videoUrl = "https://android-tv-classics.firebaseapp.com/content/le_voyage_dans_la_lun/media_le_voyage_dans_la_lun.mp4"
+        val dataSourceFactory = DefaultDataSourceFactory(this, "sample")
+       val mediaSource =  ProgressiveMediaSource.Factory(dataSourceFactory)
+            .createMediaSource(MediaItem.fromUri(Uri.parse(videoUrl)))
+            player?.setMediaSource(mediaSource)
             player?.prepare()
-        }
     }
 
-    private fun buildMediaSource(): MediaSource {
-        val videoUrl = intent.getStringExtra("https://android-tv-classics.firebaseapp.com/content/le_voyage_dans_la_lun/media_le_voyage_dans_la_lun.mp4").toString()
-        val dataSourceFactory = DefaultDataSourceFactory(this, "sample")
-        return ProgressiveMediaSource.Factory(dataSourceFactory)
-            .createMediaSource(MediaItem.fromUri(Uri.parse(videoUrl)))
-    }
 
     override fun onResume() {
         super.onResume()
@@ -52,11 +47,7 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
         player?.playWhenReady = false
         if (isFinishing) {
-            releasePlayer()
+            player?.release()
         }
-    }
-
-    private fun releasePlayer() {
-        player?.release()
     }
 }
